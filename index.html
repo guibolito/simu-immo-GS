@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur Cashflow Locatif</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Unbounded:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg: #080a0f;
+  --s1: #0e1118;
+  --s2: #141820;
+  --s3: #1c2030;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8e4dc;
+  --muted: rgba(232,228,220,0.4);
+  --muted2: rgba(232,228,220,0.65);
+  --lime: #b8f040;
+  --lime3: rgba(184,240,64,0.06);
+  --cyan: #40d8f0;
+  --red: #f04060;
+  --amber: #f0b040;
+  --mono: 'DM Mono', monospace;
+  --display: 'Unbounded', sans-serif;
+  --r: 12px;
+  --r2: 18px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--mono); min-height: 100vh; overflow-x: hidden; }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.022; pointer-events: none; z-index: 0;
+}
+
+header {
+  position: relative; z-index: 1;
+  padding: 2rem 2.5rem 1.75rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;
+}
+header::after {
+  content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(184,240,64,0.4), transparent);
+}
+.logo { font-family: var(--display); font-weight: 800; font-size: clamp(1rem,2.5vw,1.45rem); letter-spacing: -0.04em; line-height: 1.15; }
+.logo em { color: var(--lime); font-style: normal; }
+.logo small { display: block; font-size: 0.55em; font-weight: 300; color: var(--muted2); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge { font-size: 10px; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border2); color: var(--muted2); letter-spacing: 0.04em; }
+
+main { position: relative; z-index: 1; display: grid; grid-template-columns: 330px 1fr; min-height: calc(100vh - 80px); }
+@media (max-width: 880px) { main { grid-template-columns: 1fr; } }
+
+.left-panel {
+  border-right: 1px solid var(--border);
+  padding: 1.75rem 1.6rem;
+  background: var(--s1);
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+  position: sticky; top: 80px; align-self: start;
+}
+@media (max-width: 880px) { .left-panel { max-height: none; position: static; border-right: none; border-bottom: 1px solid var(--border); } }
+
+.sec-head { font-family: var(--display); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-bottom: 0.7rem; margin-bottom: 1.1rem; border-bottom: 1px solid var(--border); }
+.sec-head.cy { color: rgba(64,216,240,0.7); }
+.sec-head.li { color: rgba(184,240,64,0.7); }
+
+.sl-group { margin-bottom: 1.15rem; }
+.sl-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
+.sl-name { font-size: 11px; color: var(--muted2); }
+.sl-val { font-size: 12px; font-weight: 500; color: var(--lime); min-width: 90px; text-align: right; }
+
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 2px; background: var(--s3); border-radius: 1px; outline: none; cursor: pointer; display: block; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--lime); cursor: pointer; box-shadow: 0 0 0 3px rgba(184,240,64,0.12), 0 0 10px rgba(184,240,64,0.25); transition: box-shadow .2s, transform .15s; }
+input[type=range]::-webkit-slider-thumb:hover { box-shadow: 0 0 0 7px rgba(184,240,64,0.14), 0 0 18px rgba(184,240,64,0.35); transform: scale(1.15); }
+input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--lime); cursor: pointer; border: none; }
+
+.divider { height: 1px; background: var(--border); margin: 1.4rem 0 1.2rem; }
+
+.export-row { display: flex; gap: 8px; margin-top: 1.6rem; }
+.btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--display); font-size: 9px; font-weight: 600; letter-spacing: 0.06em; padding: 10px 10px; border-radius: var(--r); border: 1px solid; cursor: pointer; transition: all .15s; text-transform: uppercase; background: transparent; }
+.btn-xl { border-color: rgba(0,180,80,0.45); color: #50c878; }
+.btn-xl:hover { background: rgba(0,180,80,0.1); border-color: rgba(0,180,80,0.75); transform: translateY(-1px); }
+.btn-pdf { border-color: rgba(240,64,64,0.45); color: #f07070; }
+.btn-pdf:hover { background: rgba(240,64,64,0.08); border-color: rgba(240,64,64,0.75); transform: translateY(-1px); }
+.btn svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
+.btn:active { transform: scale(0.97); }
+
+.right-panel { padding: 1.75rem; display: flex; flex-direction: column; gap: 1.15rem; overflow-y: auto; }
+
+.cf-hero { border-radius: var(--r2); border: 1px solid var(--border2); padding: 1.75rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; position: relative; overflow: hidden; background: var(--s1); transition: border-color .5s; }
+.cf-hero::before { content: ''; position: absolute; top: -50%; right: -5%; width: 260px; height: 260px; border-radius: 50%; filter: blur(55px); opacity: 0; transition: background .5s, opacity .5s; pointer-events: none; }
+.cf-hero.pos { border-color: rgba(184,240,64,0.3); } .cf-hero.pos::before { background: var(--lime); opacity: .1; }
+.cf-hero.neu { border-color: rgba(240,176,64,0.3); } .cf-hero.neu::before { background: var(--amber); opacity: .1; }
+.cf-hero.neg { border-color: rgba(240,64,96,0.3); }  .cf-hero.neg::before { background: var(--red); opacity: .1; }
+.cf-label { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .4rem; }
+.cf-value { font-family: var(--display); font-size: clamp(1.9rem,4.5vw,3.2rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; transition: color .4s; }
+.cf-verdict { font-size: 11.5px; color: var(--muted2); margin-top: .55rem; line-height: 1.5; transition: color .3s; max-width: 260px; }
+.cf-pill { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 6px 14px; border-radius: 20px; border: 1px solid; transition: all .4s; white-space: nowrap; }
+
+.metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: .9rem; }
+@media (max-width: 600px) { .metrics { grid-template-columns: 1fr 1fr; } }
+.metric { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); padding: .9rem 1rem; transition: border-color .2s; }
+.metric:hover { border-color: var(--border2); }
+.m-label { font-size: 9.5px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: .4rem; line-height: 1.4; }
+.m-val { font-family: var(--display); font-size: .95rem; font-weight: 600; letter-spacing: -.02em; }
+.m-val.lime { color: var(--lime); } .m-val.cyan { color: var(--cyan); } .m-val.muted { color: var(--muted2); }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.15rem; }
+@media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+
+.card { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r2); padding: 1.4rem; }
+.card-title { font-family: var(--display); font-size: 9px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; padding-bottom: .65rem; border-bottom: 1px solid var(--border); }
+.card-title.lime { color: rgba(184,240,64,0.7); } .card-title.cyan { color: rgba(64,216,240,0.7); } .card-title.amber { color: rgba(240,176,64,0.7); }
+
+.seuil-row { display: flex; justify-content: space-between; align-items: center; padding: .55rem 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+.seuil-row:last-child { border-bottom: none; }
+.sl { color: var(--muted2); }
+.sv { font-weight: 500; }
+.sv.lime { color: var(--lime); } .sv.cyan { color: var(--cyan); } .sv.amber { color: var(--amber); }
+
+.banque-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; margin-bottom: .9rem; }
+.bi { background: var(--s2); border-radius: 9px; padding: .75rem .9rem; border: 1px solid var(--border); }
+.bl { font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+.bv { font-family: var(--display); font-size: 12.5px; font-weight: 600; }
+
+.prog-label { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted2); margin-bottom: 5px; }
+.prog-track { height: 4px; background: var(--s3); border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; transition: width .5s cubic-bezier(.4,0,.2,1), background .4s; }
+.prog-note { font-size: 9px; color: var(--muted); text-align: right; margin-top: 3px; }
+
+.scenario-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.scenario-table th { font-family: var(--display); font-size: 8.5px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); padding: 7px 9px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+.scenario-table th:first-child { text-align: left; }
+.scenario-table td { padding: 6px 9px; border-bottom: 1px solid var(--border); text-align: right; font-family: var(--mono); }
+.scenario-table td:first-child { text-align: left; color: var(--muted2); }
+.scenario-table tr:last-child td { border-bottom: none; }
+.scenario-table tr:hover td { background: var(--s2); }
+.pv { color: var(--lime); } .nv { color: var(--red); } .wv { color: var(--amber); }
+.ar td { background: rgba(184,240,64,0.04) !important; }
+.ar td:first-child { color: var(--lime); }
+
+footer { position: relative; z-index: 1; padding: .9rem 2.5rem; border-top: 1px solid var(--border); display: flex; gap: 2rem; flex-wrap: wrap; font-size: 9.5px; color: var(--muted); background: var(--s1); }
+
+::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    Simulateur Cashflow<em> Locatif</em>
+    <small>Investissement Locatif</small>
+  </div>
+  <div class="badges">
+    <span class="badge">Règle 70% banque</span>
+    <span class="badge">HCSF 35% max</span>
+    <span class="badge">Export Excel + PDF</span>
+  </div>
+</header>
+
+<main>
+  <div class="left-panel">
+    <div class="sec-head">Paramètres du bien</div>
+    <div class="sl-group">
+      <div class="sl-row"><span class="sl-name">Prix au m²</span><span class="sl-val" id="v-pm2">4 500 €/m²</span></div>
+      <input type="range" id="pm2" min="2500" max="7000" step="50" value="4500">
+    </div>
+    <div class="sl-group">
+      <div class="sl-row"><span class="sl-name">Surface</span><span class="sl-val" id="v-surf">45 m²</span></div>
+      <input type="range" id="surf" min="25" max="70" step="1" value="45">
+    </div>
+    <div class="sl-group">
+      <div class="sl-row"><span class="sl-name">Durée du crédit</span><span class="sl-val" id="v-duree">20 ans</span></div>
+      <input type="range" id="duree" min="15" max="25" step="1" value="20">
+    </div>
+    <div class="sl-group">
+      <div class="sl-row"><span class="sl-name">Taux crédit</span><span class="sl-val" id="v-taux">3,5 %</span></div>
+      <input type="range" id="taux" min="2.0" max="5.0" step="0.1" value="3.5">
+    </div>
+    <div class="sl-group">
+      <div class="sl-row"><span class="sl-name">Apport personnel</span><span class="sl-val" id="v-apport">0 €</span></div>
+      <input type="range" id="apport" min="0" max="50000" step="1000" value="0">
+    </div>
+
+    <div class="divider"></div>
+    <div class="sec-head cy">Revenus locatifs</div>
+
+    <div class="sl-group">
+      <div class="sl-row"><span class="sl-name">Revenu locatif brut annuel</span><span class="sl-val" id="v-rev">18 500 €/an</span></div>
+      <input type="range" id="rev" min="8000" max="30000" step="500" value="18500">
+    </div>
+    <div class="sl-group">
+      <div class="sl-row"><span class="sl-name">Frais de gestion</span><span class="sl-val" id="v-conc">20 %</span></div>
+      <input type="range" id="conc" min="0" max="30" step="1" value="20">
+    </div>
+    <div class="sl-group">
+      <div class="sl-row"><span class="sl-name">Charges annuelles</span><span class="sl-val" id="v-chg">2 800 €/an</span></div>
+      <input type="range" id="chg" min="500" max="6000" step="100" value="2800">
+    </div>
+    <div class="sl-group">
+      <div class="sl-row"><span class="sl-name">Vacance locative</span><span class="sl-val" id="v-vac">5 %</span></div>
+      <input type="range" id="vac" min="0" max="30" step="1" value="5">
+    </div>
+
+    <div class="divider"></div>
+    <div class="sec-head li">Exporter</div>
+    <div class="export-row">
+      <button class="btn btn-xl" onclick="exportExcel()">
+        <svg viewBox="0 0 24 24"><path d="M21.17 3.25Q21.5 3.25 21.76 3.5 22 3.74 22 4.08V19.92Q22 20.26 21.76 20.5 21.5 20.75 21.17 20.75H7.83Q7.5 20.75 7.24 20.5 7 20.26 7 19.92V17H2.83Q2.5 17 2.24 16.76 2 16.5 2 16.17V7.83Q2 7.5 2.24 7.24 2.5 7 2.83 7H7V4.08Q7 3.74 7.24 3.5 7.5 3.25 7.83 3.25M7 13.06L8.18 15.28H9.97L8 12.06 9.93 8.89H8.22L7.13 10.9 7 11.13 6.88 10.9 5.78 8.89H4.08L6 12.06 4.05 15.28H5.84M13.88 19.5V17H8.25V19.5M13.88 15.75V12.63H8.25V15.75M13.88 11.38V8.25H8.25V11.38M20.75 19.5V17H15.13V19.5M20.75 15.75V12.63H15.13V15.75M20.75 11.38V8.25H15.13V11.38Z"/></svg>
+        Excel
+      </button>
+      <button class="btn btn-pdf" onclick="exportPDF()">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M9.5 11.5C9.5 12.3 8.8 13 8 13H7V15H5.5V9H8C8.8 9 9.5 9.7 9.5 10.5V11.5M14.5 13.5C14.5 14.3 13.8 15 13 15H10.5V9H13C13.8 9 14.5 9.7 14.5 10.5V13.5M18.5 10.5H17V11.5H18.5V13H17V15H15.5V9H18.5V10.5M7 10.5H8V11.5H7V10.5M12 10.5H13V13.5H12V10.5Z"/></svg>
+        PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="right-panel">
+
+    <div class="cf-hero pos" id="hero">
+      <div>
+        <div class="cf-label">Cashflow mensuel net</div>
+        <div class="cf-value" id="cf-val">—</div>
+        <div class="cf-verdict" id="cf-verdict">—</div>
+      </div>
+      <div class="cf-pill" id="cf-pill">—</div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="m-label">Prix du bien</div><div class="m-val muted" id="m-prix">—</div></div>
+      <div class="metric"><div class="m-label">Mensualité crédit</div><div class="m-val" id="m-mens">—</div></div>
+      <div class="metric"><div class="m-label">Revenu net / mois</div><div class="m-val lime" id="m-rev">—</div></div>
+      <div class="metric"><div class="m-label">Total acquisition</div><div class="m-val muted" id="m-total">—</div></div>
+      <div class="metric"><div class="m-label">Rendement brut</div><div class="m-val lime" id="m-rend">—</div></div>
+      <div class="metric"><div class="m-label">Rendement net</div><div class="m-val cyan" id="m-rendnet">—</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title amber">Analyse bancaire — règle 70%</div>
+        <div class="banque-grid">
+          <div class="bi"><div class="bl">Loyer retenu (70%)</div><div class="bv" id="b-loyer">—</div></div>
+          <div class="bi"><div class="bl">Mensualité charge</div><div class="bv" id="b-mens">—</div></div>
+          <div class="bi"><div class="bl">Impact endettement</div><div class="bv" id="b-impact">—</div></div>
+          <div class="bi"><div class="bl">Taux endettement</div><div class="bv" id="b-taux">—</div></div>
+        </div>
+        <div class="prog-label"><span>Endettement estimé</span><span id="prog-pct">—</span></div>
+        <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-note">Limite HCSF : 35 %</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title lime">Seuils prix au m²</div>
+        <div class="seuil-row"><span class="sl">Cashflow = 0 (point mort)</span><span class="sv lime" id="s0">—</span></div>
+        <div class="seuil-row"><span class="sl">Cashflow +50 €/mois</span><span class="sv lime" id="s50">—</span></div>
+        <div class="seuil-row"><span class="sl">Cashflow +100 €/mois</span><span class="sv lime" id="s100">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title cyan">Scénarios — cashflow selon prix au m² <span style="color:var(--muted);font-weight:400">(surface & durée actuelles)</span></div>
+      <div style="overflow-x:auto">
+        <table class="scenario-table">
+          <thead><tr>
+            <th>Prix au m²</th><th>Prix bien</th><th>Mensualité</th>
+            <th>Rev. net/mois</th><th>Cashflow</th><th>Rend. brut</th>
+          </tr></thead>
+          <tbody id="scen-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <span>Simulateur cashflow locatif · Règle bancaire 70% · HCSF 35% endettement max</span>
+  <span>Frais notaire estimés à 7,5% · Revenus salariaux base 40 000 € brut/an</span>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const N = n => Math.round(n);
+const fmt = n => N(n).toLocaleString('fr-FR');
+const E = (n,s='€') => fmt(n)+' '+s;
+const P = (n,d=1) => n.toFixed(d).replace('.',',')+' %';
+
+function calc(pm2, surf, duree, taux_pct, apport, rev, conc_pct, chg, vac_pct) {
+  const taux = taux_pct/100, r = taux/12, n = duree*12;
+  const prixBien = pm2*surf, frais = prixBien*0.075, total = prixBien+frais;
+  const emprunt = total-apport;
+  const mens = r===0 ? emprunt/n : emprunt*(r*(1+r)**n)/((1+r)**n-1);
+  const revAj = rev*(1-vac_pct/100), revNC = revAj*(1-conc_pct/100);
+  const revNA = revNC-chg, revNM = revNA/12, cf = revNM-mens;
+  const rB = (rev/total)*100, rN = (revNA/total)*100;
+  const l70 = rev*.70/12, impact = mens-l70;
+  const tEnd = Math.max(0,impact)/((40000*.78)/12);
+  const k = r===0 ? 1/n : r*(1+r)**n/((1+r)**n-1);
+  const s = tcf => { const num=revNM-tcf+apport*k, den=surf*1.075*k; return den>0?num/den:0; };
+  return { prixBien,frais,total,emprunt,mens,revNM,cf,rB,rN,l70,impact,tEnd,
+           s0:s(0),s50:s(50),s100:s(100) };
+}
+
+function getP() {
+  return { pm2:+$('pm2').value, surf:+$('surf').value, duree:+$('duree').value,
+           taux:+$('taux').value, apport:+$('apport').value, rev:+$('rev').value,
+           conc:+$('conc').value, chg:+$('chg').value, vac:+$('vac').value };
+}
+
+function update() {
+  const p = getP();
+  const d = calc(p.pm2,p.surf,p.duree,p.taux,p.apport,p.rev,p.conc,p.chg,p.vac);
+
+  $('v-pm2').textContent   = fmt(p.pm2)+' €/m²';
+  $('v-surf').textContent  = p.surf+' m²';
+  $('v-duree').textContent = p.duree+' ans';
+  $('v-taux').textContent  = p.taux.toFixed(1).replace('.',',')+' %';
+  $('v-apport').textContent= E(p.apport);
+  $('v-rev').textContent   = E(p.rev,'€/an');
+  $('v-conc').textContent  = p.conc+' %';
+  $('v-chg').textContent   = E(p.chg,'€/an');
+  $('v-vac').textContent   = p.vac+' %';
+
+  const hero=$('hero'), cfEl=$('cf-val'), cvEl=$('cf-verdict'), pill=$('cf-pill');
+  hero.classList.remove('pos','neu','neg');
+  const sign = d.cf>=0?'+':'';
+  cfEl.textContent = sign+E(N(d.cf))+'/mois';
+
+  if (d.cf>50) {
+    hero.classList.add('pos'); cfEl.style.color='var(--lime)';
+    cvEl.textContent='Autofinancement avec excédent — le locataire rembourse et tu gagnes';
+    cvEl.style.color='var(--lime)';
+    pill.textContent='✓ AUTOFINANCÉ';
+    pill.style.cssText='border-color:rgba(184,240,64,.45);color:var(--lime);background:rgba(184,240,64,.07)';
+  } else if (d.cf>=-50) {
+    hero.classList.add('neu'); cfEl.style.color='var(--amber)';
+    cvEl.textContent='Quasi-autofinancement — effort mensuel négligeable';
+    cvEl.style.color='var(--amber)';
+    pill.textContent='≈ ÉQUILIBRE';
+    pill.style.cssText='border-color:rgba(240,176,64,.45);color:var(--amber);background:rgba(240,176,64,.07)';
+  } else {
+    hero.classList.add('neg'); cfEl.style.color='var(--red)';
+    cvEl.textContent='Effort mensuel de '+E(Math.abs(N(d.cf)))+' — ne s\'autofinance pas';
+    cvEl.style.color='var(--red)';
+    pill.textContent='✗ DÉFICIT';
+    pill.style.cssText='border-color:rgba(240,64,96,.45);color:var(--red);background:rgba(240,64,96,.07)';
+  }
+
+  $('m-prix').textContent    = E(d.prixBien);
+  $('m-mens').textContent    = E(N(d.mens))+'/mois';
+  $('m-rev').textContent     = E(N(d.revNM))+'/mois';
+  $('m-total').textContent   = E(d.total);
+  $('m-rend').textContent    = P(d.rB);
+  $('m-rendnet').textContent = P(d.rN);
+
+  $('b-loyer').textContent = E(N(d.l70))+'/mois';
+  $('b-mens').textContent  = E(N(d.mens))+'/mois';
+  const bi=$('b-impact');
+  bi.textContent = (d.impact>0?'+':'')+E(N(d.impact))+'/mois';
+  bi.style.color = d.impact>0?'var(--red)':'var(--lime)';
+  const bt=$('b-taux');
+  bt.textContent = P(d.tEnd*100);
+  bt.style.color = d.tEnd>.35?'var(--red)':d.tEnd>.25?'var(--amber)':'var(--lime)';
+  $('prog-pct').textContent = P(d.tEnd*100);
+  const pf=$('prog-fill');
+  pf.style.width = Math.min(d.tEnd*100/50*100,100)+'%';
+  pf.style.background = d.tEnd>.35?'var(--red)':d.tEnd>.25?'var(--amber)':'var(--lime)';
+
+  $('s0').textContent   = fmt(N(d.s0))+' €/m²';
+  $('s50').textContent  = fmt(N(d.s50))+' €/m²';
+  $('s100').textContent = fmt(N(d.s100))+' €/m²';
+
+  const tbody=$('scen-body'); tbody.innerHTML='';
+  [2500,3000,3500,4000,4200,4500,5000,5500,6000,6500,7000].forEach(pm2v=>{
+    const sd=calc(pm2v,p.surf,p.duree,p.taux,p.apport,p.rev,p.conc,p.chg,p.vac);
+    const isA=Math.abs(pm2v-p.pm2)<300;
+    const cc=sd.cf>50?'pv':sd.cf>=-50?'wv':'nv';
+    const cs=sd.cf>=0?'+':'';
+    const tr=document.createElement('tr');
+    if(isA) tr.classList.add('ar');
+    tr.innerHTML=`<td>${fmt(pm2v)} €/m²${isA?' ←':''}</td><td>${E(sd.prixBien)}</td><td>${E(N(sd.mens))}/mois</td><td>${E(N(sd.revNM))}/mois</td><td class="${cc}">${cs}${E(N(sd.cf))}/mois</td><td>${P(sd.rB)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ── EXPORT EXCEL (SheetJS inline) ── */
+function exportExcel() {
+  const p=getP(), d=calc(p.pm2,p.surf,p.duree,p.taux,p.apport,p.rev,p.conc,p.chg,p.vac);
+  const wb=XLSX.utils.book_new();
+  const aoa=[
+    ['SIMULATEUR CASHFLOW LOCATIF','',''],
+    ['Règle bancaire 70% · HCSF 35% max','',''],[''],
+    ['PARAMÈTRES','',''],
+    ['Prix au m²',p.pm2,'€/m²'],['Surface',p.surf,'m²'],
+    ['Durée crédit',p.duree,'ans'],['Taux crédit',p.taux+'%',''],
+    ['Apport',p.apport,'€'],['Revenu locatif brut',p.rev,'€/an'],
+    ['Frais de gestion',p.conc+'%',''],['Charges annuelles',p.chg,'€/an'],
+    ['Vacance locative',p.vac+'%',''],[''],
+    ['RÉSULTATS','',''],
+    ['Prix du bien',N(d.prixBien),'€'],['Frais notaire',N(d.frais),'€'],
+    ['Total acquisition',N(d.total),'€'],['Emprunt',N(d.emprunt),'€'],
+    ['Mensualité crédit',N(d.mens),'€/mois'],['Revenu net/mois',N(d.revNM),'€/mois'],
+    ['CASHFLOW MENSUEL NET',N(d.cf),'€/mois'],
+    ['Rendement brut',d.rB.toFixed(1)+'%',''],['Rendement net',d.rN.toFixed(1)+'%',''],[''],
+    ['SEUILS PRIX AU M²','',''],
+    ['Point mort (CF=0)',N(d.s0),'€/m²'],['CF +50€/mois',N(d.s50),'€/m²'],
+    ['CF +100€/mois',N(d.s100),'€/m²'],[''],
+    ['BANQUE 70%','',''],
+    ['Loyer retenu banque',N(d.l70),'€/mois'],['Impact endettement',N(d.impact),'€/mois'],
+    ["Taux d'endettement",(d.tEnd*100).toFixed(1)+'%',''],['Limite HCSF','35%',''],
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols']=[{wch:36},{wch:18},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws,'Simulateur');
+
+  const s2=[['Prix au m²','Prix bien €','Mensualité €/mois','Rev.net/mois €','Cashflow €/mois','Rend. brut']];
+  [2500,3000,3500,4000,4200,4500,5000,5500,6000,6500,7000].forEach(pm2v=>{
+    const sd=calc(pm2v,p.surf,p.duree,p.taux,p.apport,p.rev,p.conc,p.chg,p.vac);
+    s2.push([pm2v,N(sd.prixBien),N(sd.mens),N(sd.revNM),N(sd.cf),sd.rB.toFixed(1)+'%']);
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(s2);
+  ws2['!cols']=[{wch:12},{wch:14},{wch:16},{wch:16},{wch:16},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Scénarios');
+  XLSX.writeFile(wb,'cashflow_locatif.xlsx');
+}
+
+/* ── EXPORT PDF (via print dialog) ── */
+function exportPDF() {
+  const p=getP(), d=calc(p.pm2,p.surf,p.duree,p.taux,p.apport,p.rev,p.conc,p.chg,p.vac);
+  const cc=d.cf>50?'#70c840':d.cf>=-50?'#c09030':'#d04050';
+  const cs=d.cf>=0?'+':'';
+  const row=(l,v,c='')=>`<tr><td>${l}</td><td style="color:${c||'inherit'};font-weight:500">${v}</td></tr>`;
+  const html=`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Cashflow Locatif</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica Neue',Arial,sans-serif;background:#fff;color:#111;padding:28px;font-size:11px;line-height:1.5}
+h1{font-size:17px;font-weight:800;color:#0a0f1e;letter-spacing:-.03em;margin-bottom:3px}
+.sub{color:#999;font-size:9.5px;margin-bottom:22px}
+.cf-box{display:flex;justify-content:space-between;align-items:center;background:#f8f9fa;border-left:4px solid ${cc};padding:14px 18px;margin-bottom:18px;border-radius:6px}
+.cf-num{font-size:26px;font-weight:800;color:${cc};letter-spacing:-.03em}
+.cf-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#999;margin-bottom:3px}
+.cf-vrd{font-size:10.5px;color:#666;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.section-title{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#999;padding-bottom:5px;border-bottom:1px solid #e8e8e8;margin-bottom:8px}
+table{width:100%;border-collapse:collapse}
+td{padding:4px 7px;border-bottom:1px solid #f2f2f2;font-size:10.5px}
+td:last-child{text-align:right}
+tr:nth-child(even) td{background:#fafafa}
+.g{color:#2a7a40}.r{color:#c03030}.b{color:#1a5090}
+@media print{@page{margin:12mm;size:A4}body{padding:0}}
+</style></head><body>
+<h1>Simulateur Cashflow Locatif</h1>
+<div class="sub">Règle bancaire 70% · HCSF 35% max · Frais notaire 7,5%</div>
+
+<div class="cf-box">
+  <div>
+    <div class="cf-lbl">Cashflow mensuel net</div>
+    <div class="cf-num">${cs}${E(N(d.cf))}/mois</div>
+    <div class="cf-vrd">${d.cf>50?'Autofinancement avec excédent':d.cf>=-50?'Quasi-autofinancement (équilibre)':'Effort mensuel — ne s\'autofinance pas'}</div>
+  </div>
+  <div style="text-align:right">
+    <div class="cf-lbl">Rendement brut / net</div>
+    <div style="font-size:18px;font-weight:700;color:${cc}">${P(d.rB)}</div>
+    <div style="font-size:10px;color:#888;margin-top:2px">Net : ${P(d.rN)}</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <div class="section-title">Paramètres</div>
+    <table>
+      ${row('Prix au m²',fmt(p.pm2)+' €/m²')}
+      ${row('Surface',p.surf+' m²')}
+      ${row('Durée crédit',p.duree+' ans')}
+      ${row('Taux crédit',P(p.taux))}
+      ${row('Apport',E(p.apport))}
+      ${row('Revenu locatif brut',E(p.rev,'€/an'))}
+      ${row('Frais de gestion',P(p.conc))}
+      ${row('Charges annuelles',E(p.chg,'€/an'))}
+      ${row('Vacance locative',P(p.vac))}
+    </table>
+  </div>
+  <div>
+    <div class="section-title">Résultats financiers</div>
+    <table>
+      ${row('Prix du bien',E(d.prixBien))}
+      ${row('Frais notaire',E(d.frais))}
+      ${row('Total acquisition',E(d.total),'#1a5090')}
+      ${row('Emprunt',E(d.emprunt))}
+      ${row('Mensualité crédit',E(N(d.mens))+'/mois')}
+      ${row('Revenu net/mois',E(N(d.revNM))+'/mois','#2a7a40')}
+      ${row('<b>Cashflow</b>','<b>'+(d.cf>=0?'+':'')+E(N(d.cf))+'/mois</b>',d.cf>=0?'#2a7a40':'#c03030')}
+    </table>
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <div class="section-title">Seuils de prix au m²</div>
+    <table>
+      ${row('Point mort (CF=0)',fmt(N(d.s0))+' €/m²','#2a7a40')}
+      ${row('CF +50 €/mois',fmt(N(d.s50))+' €/m²','#2a7a40')}
+      ${row('CF +100 €/mois',fmt(N(d.s100))+' €/m²','#2a7a40')}
+    </table>
+  </div>
+  <div>
+    <div class="section-title">Analyse bancaire 70%</div>
+    <table>
+      ${row('Loyer retenu banque',E(N(d.l70))+'/mois')}
+      ${row('Mensualité (charge)',E(N(d.mens))+'/mois')}
+      ${row('Impact endettement',(d.impact>0?'+':'')+E(N(d.impact))+'/mois',d.impact>0?'#c03030':'#2a7a40')}
+      ${row("Taux d'endettement est.",'<b>'+P(d.tEnd*100)+'</b>',d.tEnd>.35?'#c03030':d.tEnd>.25?'#b06000':'#2a7a40')}
+      ${row('Limite HCSF','35%')}
+    </table>
+  </div>
+</div>
+
+<div style="font-size:9px;color:#bbb;margin-top:14px;padding-top:10px;border-top:1px solid #eee">
+  Simulateur cashflow locatif · Règle HCSF 35% endettement max · Frais notaire estimés 7,5%
+</div>
+<script>window.onload=()=>window.print();<\/script>
+</body></html>`;
+
+  const w=window.open('','_blank','width=900,height=700');
+  w.document.write(html);
+  w.document.close();
+}
+
+document.querySelectorAll('input[type=range]').forEach(el=>el.addEventListener('input',update));
+update();
+</script>
+</body>
+</html>
