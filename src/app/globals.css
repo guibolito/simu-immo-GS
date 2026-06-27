@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #080a0f;
+  --s1: #0e1118;
+  --s2: #141820;
+  --s3: #1c2030;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8e4dc;
+  --muted: rgba(232,228,220,0.4);
+  --muted2: rgba(232,228,220,0.65);
+  --lime: #b8f040;
+  --cyan: #40d8f0;
+  --red: #f04060;
+  --amber: #f0b040;
+  --font-mono: 'DM Mono', monospace;
+  --font-display: 'Unbounded', sans-serif;
+}
+
+@theme inline {
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+}
+
+* { box-sizing: border-box; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: var(--s3);
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+  display: block;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--lime);
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(184,240,64,0.12), 0 0 10px rgba(184,240,64,0.25);
+  transition: box-shadow .2s, transform .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 7px rgba(184,240,64,0.14), 0 0 18px rgba(184,240,64,0.35);
+  transform: scale(1.15);
+}
