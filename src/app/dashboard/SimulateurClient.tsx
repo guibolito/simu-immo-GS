@@ -46,6 +46,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const d = compute(params)
 
+  // Toast succès abonnement
   useEffect(() => {
     if (searchParams.get('success') === '1') {
       setToast({ msg: '🎉 Abonnement activé — bienvenue sur SimuImmo !', type: 'success' })
@@ -69,9 +70,14 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
   }
 
   async function handlePortal() {
-    const res = await fetch('/api/stripe/portal', { method: 'POST' })
-    const { url } = await res.json()
-    if (url) window.location.href = url
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' })
+      const { url } = await res.json()
+      if (url) window.location.href = url
+      else setToast({ msg: 'Impossible d\'ouvrir le portail. Réessayez.', type: 'error' })
+    } catch {
+      setToast({ msg: 'Erreur réseau. Réessayez.', type: 'error' })
+    }
   }
 
   const cfColor = d.cf > 50 ? '#b8f040' : d.cf >= -50 ? '#f0b040' : '#f04060'
@@ -80,6 +86,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#080a0f', color: '#e8e4dc', fontFamily: 'var(--font-mono, monospace)' }}>
 
+      {/* Toast */}
       {toast && (
         <div style={{
           position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
@@ -94,8 +101,10 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
         </div>
       )}
 
+      {/* Header */}
       <header style={{ padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0e1118', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Mobile toggle */}
           <button className="mobile-toggle" onClick={() => setPanelOpen(o => !o)}
             style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 10px', color: '#e8e4dc', cursor: 'pointer', fontSize: 13 }}>
             {panelOpen ? '✕' : '⚙'}
@@ -105,7 +114,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
           </div>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '11px', color: 'rgba(232,228,220,0.35)' }}>{userEmail}</span>
+          <span style={{ fontSize: '11px', color: 'rgba(232,228,220,0.35)' }} className="hidden sm:inline">{userEmail}</span>
           <button onClick={handlePortal} style={{ fontSize: '11px', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(232,228,220,0.6)', cursor: 'pointer' }}>
             Abonnement
           </button>
@@ -116,6 +125,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
       </header>
 
       <div className="dashboard-grid">
+        {/* Left panel — params */}
         <div className={`left-panel${panelOpen ? ' open' : ''}`}>
           <SectionHead>Paramètres du bien</SectionHead>
           <Slider label="Prix au m²" value={fmt(params.pm2) + ' €/m²'} min={2500} max={7000} step={50} val={params.pm2} onChange={set('pm2')} />
@@ -139,7 +149,10 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
           </div>
         </div>
 
+        {/* Right panel — results */}
         <div className="right-panel">
+
+          {/* Cashflow hero */}
           <div style={{ borderRadius: 18, border: `1px solid ${heroBorder}`, padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', background: '#0e1118' }}>
             <div>
               <div style={{ fontSize: 9, letterSpacing: '.12em', textTransform: 'uppercase', color: 'rgba(232,228,220,0.4)', marginBottom: '.4rem' }}>Cashflow mensuel net</div>
@@ -151,10 +164,11 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
               </div>
             </div>
             <div style={{ fontSize: 10, letterSpacing: '.08em', textTransform: 'uppercase', padding: '6px 14px', borderRadius: 20, border: `1px solid ${heroBorder}`, color: cfColor, background: `${cfColor}18` }}>
-              {d.cf > 50 ? '✓ AUTOFINÀNCÉ' : d.cf >= -50 ? '≈ ÉQUILIBRE' : '✗ DÉFICIT'}
+              {d.cf > 50 ? '✓ AUTOFINАНCÉ' : d.cf >= -50 ? '≈ ÉQUILIBRE' : '✗ DÉFICIT'}
             </div>
           </div>
 
+          {/* Metrics */}
           <div className="metrics-grid">
             {[
               { label: 'Prix du bien', val: E(d.prixBien), color: 'rgba(232,228,220,0.65)' },
@@ -171,6 +185,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
             ))}
           </div>
 
+          {/* Banque + Seuils */}
           <div className="two-col">
             <Card title="Analyse bancaire — règle 70%" titleColor="rgba(240,176,64,0.7)">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.6rem', marginBottom: '.9rem' }}>
@@ -209,6 +224,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
             </Card>
           </div>
 
+          {/* Scénarios */}
           <Card title="Scénarios — cashflow selon prix au m²" titleColor="rgba(64,216,240,0.7)">
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 520 }}>
@@ -241,7 +257,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
           </Card>
 
           <footer style={{ fontSize: 10, color: 'rgba(232,228,220,0.25)', textAlign: 'center', paddingBottom: '1rem' }}>
-            Frais notaire estimés à 7,5% · Revenus salariaux base 40 000 € brut/an ·{' '}
+            Frais notaire estimés à 7,5% · Revenus salariaux base 40 000 € brut/an ·{' '}
             <a href="/legal" style={{ color: 'rgba(232,228,220,0.35)', textDecoration: 'underline' }}>Mentions légales & CGU</a>
           </footer>
         </div>
@@ -310,15 +326,21 @@ function exportExcel(p: Params, d: Calc) {
     ['SEUILS PRIX AU M²', '', ''],
     ['Point mort (CF=0)', Math.round(d.s0), '€/m²'],
     ['CF +50 €/mois', Math.round(d.s50), '€/m²'],
-    ['CF +100 €/mois', Math.round(d.s100), '€/m²'],
+    ['CF +100 €/mois', Math.round(d.s100), '€/m²'], [''],
+    ['ANALYSE BANCAIRE 70%', '', ''],
+    ['Loyer retenu (70%)', Math.round(d.l70), '€/mois'],
+    ['Impact endettement', Math.round(d.impact), '€/mois'],
+    ['Taux endettement estimé', (d.tEnd * 100).toFixed(1) + '%', ''],
+    ['Limite HCSF', '35%', ''],
   ]
   const ws = XLSX.utils.aoa_to_sheet(aoa)
   ws['!cols'] = [{ wch: 36 }, { wch: 18 }, { wch: 10 }]
   XLSX.utils.book_append_sheet(wb, ws, 'Simulateur')
+
   const s2 = [['Prix au m²', 'Prix bien €', 'Mensualité €/mois', 'Rev.net/mois €', 'Cashflow €/mois', 'Rend. brut']]
   SCENARIOS.forEach(pm2v => {
     const sd = compute({ ...p, pm2: pm2v })
-    s2.push([String(pm2v), String(Math.round(sd.prixBien)), String(Math.round(sd.mens)), String(Math.round(sd.revNM)), String(Math.round(sd.cf)), sd.rB.toFixed(1) + '%'])
+    s2.push([pm2v as unknown as string, Math.round(sd.prixBien) as unknown as string, Math.round(sd.mens) as unknown as string, Math.round(sd.revNM) as unknown as string, Math.round(sd.cf) as unknown as string, sd.rB.toFixed(1) + '%'])
   })
   const ws2 = XLSX.utils.aoa_to_sheet(s2)
   ws2['!cols'] = [{ wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 12 }]
@@ -331,11 +353,19 @@ function exportPDF(p: Params, d: Calc) {
   const cs = d.cf >= 0 ? '+' : ''
   const f2 = (n: number) => Math.round(n).toLocaleString('fr-FR')
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Cashflow Locatif</title>
-<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;background:#fff;color:#111;padding:28px;font-size:11px;line-height:1.5}h1{font-size:17px;font-weight:800;margin-bottom:3px}.cf-box{display:flex;justify-content:space-between;background:#f8f9fa;border-left:4px solid ${cc};padding:14px 18px;margin-bottom:18px;border-radius:6px}.cf-num{font-size:26px;font-weight:800;color:${cc}}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}.st{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#999;padding-bottom:5px;border-bottom:1px solid #e8e8e8;margin-bottom:8px}table{width:100%;border-collapse:collapse}td{padding:4px 7px;border-bottom:1px solid #f2f2f2;font-size:10.5px}td:last-child{text-align:right}@media print{@page{margin:12mm}body{padding:0}}<\/style><\/head><body>
-<h1>Simulateur Cashflow Locatif<\/h1><div style="color:#999;font-size:9.5px;margin-bottom:16px">Règle bancaire 70% · HCSF 35% max<\/div>
-<div class="cf-box"><div><div style="font-size:9px;text-transform:uppercase;color:#999">Cashflow mensuel net<\/div><div class="cf-num">${cs}${f2(d.cf)} €/mois<\/div><\/div><div style="text-align:right"><div style="font-size:9px;color:#999">Rendement brut / net<\/div><div style="font-size:18px;font-weight:700;color:${cc}">${d.rB.toFixed(1)}%<\/div><div style="font-size:10px;color:#888">Net : ${d.rN.toFixed(1)}%<\/div><\/div><\/div>
-<div class="grid"><div><div class="st">Paramètres<\/div><table><tr><td>Prix au m²<\/td><td>${f2(p.pm2)} €/m²<\/td><\/tr><tr><td>Surface<\/td><td>${p.surf} m²<\/td><\/tr><tr><td>Durée crédit<\/td><td>${p.duree} ans<\/td><\/tr><tr><td>Taux<\/td><td>${p.taux}%<\/td><\/tr><tr><td>Revenu brut<\/td><td>${f2(p.rev)} €/an<\/td><\/tr><tr><td>Charges<\/td><td>${f2(p.chg)} €/an<\/td><\/tr><\/table><\/div><div><div class="st">Résultats<\/div><table><tr><td>Prix du bien<\/td><td>${f2(d.prixBien)} €<\/td><\/tr><tr><td>Total acq.<\/td><td>${f2(d.total)} €<\/td><\/tr><tr><td>Mensualité<\/td><td>${f2(d.mens)} €/mois<\/td><\/tr><tr><td>Revenu net<\/td><td>${f2(d.revNM)} €/mois<\/td><\/tr><tr><td><b>Cashflow<\/b><\/td><td style="color:${cc};font-weight:700"><b>${cs}${f2(d.cf)} €/mois<\/b><\/td><\/tr><\/table><\/div><\/div>
-<script>window.onload=()=>window.print()<\/script><\/body><\/html>`
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;background:#fff;color:#111;padding:28px;font-size:11px;line-height:1.5}h1{font-size:17px;font-weight:800;margin-bottom:3px}.cf-box{display:flex;justify-content:space-between;background:#f8f9fa;border-left:4px solid ${cc};padding:14px 18px;margin-bottom:18px;border-radius:6px}.cf-num{font-size:26px;font-weight:800;color:${cc}}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}.st{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#999;padding-bottom:5px;border-bottom:1px solid #e8e8e8;margin-bottom:8px}table{width:100%;border-collapse:collapse}td{padding:4px 7px;border-bottom:1px solid #f2f2f2;font-size:10.5px}td:last-child{text-align:right}@media print{@page{margin:12mm}body{padding:0}}</style></head><body>
+<h1>Simulateur Cashflow Locatif</h1><div style="color:#999;font-size:9.5px;margin-bottom:16px">Règle bancaire 70% · HCSF 35% max · Frais notaire 7,5%</div>
+<div class="cf-box"><div><div style="font-size:9px;text-transform:uppercase;color:#999">Cashflow mensuel net</div><div class="cf-num">${cs}${f2(d.cf)} €/mois</div></div><div style="text-align:right"><div style="font-size:9px;color:#999">Rendement brut / net</div><div style="font-size:18px;font-weight:700;color:${cc}">${d.rB.toFixed(1)}%</div><div style="font-size:10px;color:#888">Net : ${d.rN.toFixed(1)}%</div></div></div>
+<div class="grid"><div><div class="st">Paramètres</div><table>
+<tr><td>Prix au m²</td><td>${f2(p.pm2)} €/m²</td></tr><tr><td>Surface</td><td>${p.surf} m²</td></tr>
+<tr><td>Durée crédit</td><td>${p.duree} ans</td></tr><tr><td>Taux</td><td>${p.taux}%</td></tr>
+<tr><td>Revenu brut</td><td>${f2(p.rev)} €/an</td></tr><tr><td>Charges</td><td>${f2(p.chg)} €/an</td></tr>
+</table></div><div><div class="st">Résultats</div><table>
+<tr><td>Prix du bien</td><td>${f2(d.prixBien)} €</td></tr><tr><td>Total acq.</td><td>${f2(d.total)} €</td></tr>
+<tr><td>Mensualité</td><td>${f2(d.mens)} €/mois</td></tr><tr><td>Revenu net</td><td>${f2(d.revNM)} €/mois</td></tr>
+<tr><td><b>Cashflow</b></td><td style="color:${cc};font-weight:700"><b>${cs}${f2(d.cf)} €/mois</b></td></tr>
+</table></div></div>
+<script>window.onload=()=>window.print()<\/script></body></html>`
   const w = window.open('', '_blank', 'width=900,height=700')
   if (w) { w.document.write(html); w.document.close() }
 }
