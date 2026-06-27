@@ -11,20 +11,26 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
-    // Flux reset de mot de passe → page dédiée (seulement si le code est valide)
-    if (!error && type === 'recovery') {
+    if (error) {
+      return NextResponse.redirect(`${origin}/login?error=link_expired`)
+    }
+
+    // Flux reset de mot de passe → page dédiée
+    if (type === 'recovery') {
       return NextResponse.redirect(`${origin}/reset-password`)
     }
 
     // Nouvel utilisateur confirmé → email de bienvenue (appel direct, sans HTTP)
-    if (!error && data.user) {
+    if (data.user) {
       const isNew = data.user.created_at === data.user.updated_at ||
         (Date.now() - new Date(data.user.created_at).getTime()) < 60_000
       if (isNew && data.user.email) {
         sendWelcomeEmail(data.user.email).catch(() => {})
       }
     }
+
+    return NextResponse.redirect(`${origin}/dashboard`)
   }
 
-  return NextResponse.redirect(`${origin}/dashboard`)
+  return NextResponse.redirect(`${origin}/login`)
 }

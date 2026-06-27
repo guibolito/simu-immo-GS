@@ -9,10 +9,14 @@ export default function SubscribePage() {
 
   async function handleSubscribe() {
     setLoading(true)
-    const res = await fetch('/api/stripe/checkout', { method: 'POST' })
-    const { url } = await res.json()
-    if (url) window.location.href = url
-    else setLoading(false)
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const { url } = await res.json()
+      if (url) window.location.href = url
+      else setLoading(false)
+    } catch {
+      setLoading(false)
+    }
   }
 
   return (
@@ -41,7 +45,7 @@ export default function SubscribePage() {
           </ul>
 
           <button onClick={handleSubscribe} disabled={loading} className="w-full py-3 rounded-xl font-bold text-sm transition-all" style={{ background: '#b8f040', color: '#080a0f', fontFamily: 'var(--font-display)', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Redirection...' : "S'abonner maintenant →"}
+            {loading ? 'Redirection...' : 'S\'abonner maintenant →'}
           </button>
         </div>
 

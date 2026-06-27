@@ -27,15 +27,20 @@ export async function POST(request: Request) {
     const userId = session.metadata?.user_id
     if (!userId) return NextResponse.json({ received: true })
 
+    if (!session.subscription) return NextResponse.json({ received: true })
     const subscription: AnySubscription = await stripe.subscriptions.retrieve(session.subscription as string)
 
-    await supabaseAdmin.from('subscriptions').upsert({
+    const { error: upsertError } = await supabaseAdmin.from('subscriptions').upsert({
       user_id: userId,
       stripe_customer_id: session.customer as string,
       stripe_subscription_id: subscription.id,
       status: subscription.status,
       current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
     }, { onConflict: 'user_id' })
+    if (upsertError) {
+      console.error('Subscription upsert failed:', upsertError)
+      return NextResponse.json({ error: 'DB error' }, { status: 500 })
+    }
 
     try {
       const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(userId)
@@ -45,10 +50,14 @@ export async function POST(request: Request) {
 
   if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
     const sub: AnySubscription = event.data.object
-    await supabaseAdmin.from('subscriptions').update({
+    const { error: updateError } = await supabaseAdmin.from('subscriptions').update({
       status: sub.status,
       current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
     }).eq('stripe_subscription_id', sub.id)
+    if (updateError) {
+      console.error('Subscription update failed:', updateError)
+      return NextResponse.json({ error: 'DB error' }, { status: 500 })
+    }
   }
 
   return NextResponse.json({ received: true })

@@ -17,6 +17,7 @@ function LoginForm() {
   const [success, setSuccess] = useState('')
 
   const supabase = createClient()
+  const linkError = searchParams.get('error') === 'link_expired'
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -54,6 +55,12 @@ function LoginForm() {
         </div>
 
         <div className="rounded-2xl p-7" style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.07)' }}>
+          {linkError && (
+            <div className="text-center py-3 mb-2 rounded-lg" style={{ background: 'rgba(240,64,96,0.08)', border: '1px solid rgba(240,64,96,0.2)' }}>
+              <p className="text-xs" style={{ color: '#f04060' }}>Ce lien a expiré ou déjà été utilisé.</p>
+              <a href="/forgot-password" className="text-xs" style={{ color: '#b8f040' }}>Réinitialiser le mot de passe</a>
+            </div>
+          )}
           {success ? (
             <div className="text-center py-4">
               <div className="text-3xl mb-3">📬</div>
