@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { sendWelcomeEmail } from '@/lib/email'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -10,21 +11,17 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
-    // Flux reset de mot de passe → page dédiée
-    if (type === 'recovery') {
+    // Flux reset de mot de passe → page dédiée (seulement si le code est valide)
+    if (!error && type === 'recovery') {
       return NextResponse.redirect(`${origin}/reset-password`)
     }
 
-    // Nouvel utilisateur confirmé → email de bienvenue
+    // Nouvel utilisateur confirmé → email de bienvenue (appel direct, sans HTTP)
     if (!error && data.user) {
       const isNew = data.user.created_at === data.user.updated_at ||
         (Date.now() - new Date(data.user.created_at).getTime()) < 60_000
       if (isNew && data.user.email) {
-        fetch(`${origin}/api/auth/welcome`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: data.user.email }),
-        }).catch(() => {})
+        sendWelcomeEmail(data.user.email).catch(() => {})
       }
     }
   }

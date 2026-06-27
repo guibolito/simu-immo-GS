@@ -37,8 +37,10 @@ export async function POST(request: Request) {
       current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
     }, { onConflict: 'user_id' })
 
-    const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(userId)
-    if (user?.email) sendSubscriptionEmail(user.email).catch(() => {})
+    try {
+      const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(userId)
+      if (user?.email) sendSubscriptionEmail(user.email).catch(() => {})
+    } catch {}
   }
 
   if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {

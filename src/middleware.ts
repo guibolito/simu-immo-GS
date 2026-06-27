@@ -24,9 +24,10 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  // Routes publiques
-  const publicRoutes = ['/', '/login', '/auth/callback', '/api/stripe/webhook', '/forgot-password', '/reset-password']
-  if (publicRoutes.some(r => pathname.startsWith(r))) return supabaseResponse
+  // Routes publiques — '/' en exact match, le reste en prefix
+  const publicPrefixes = ['/login', '/auth/callback', '/api/stripe/webhook', '/forgot-password', '/reset-password', '/sitemap.xml', '/opengraph-image']
+  const isPublic = pathname === '/' || publicPrefixes.some(r => pathname.startsWith(r))
+  if (isPublic) return supabaseResponse
 
   // Non connecté → login
   if (!user) {
