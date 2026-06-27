@@ -48,6 +48,33 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+
+        {/* Pricing */}
+        <div className="mt-16 w-full max-w-xs" id="tarif">
+          <div className="rounded-2xl p-8 text-center" style={{ background: '#0e1118', border: '1px solid rgba(184,240,64,0.25)' }}>
+            <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(184,240,64,0.7)' }}>Tarif unique</p>
+            <div className="font-black mb-1" style={{ fontFamily: 'var(--font-display)', fontSize: '3rem', letterSpacing: '-0.04em', color: '#b8f040', lineHeight: 1 }}>
+              10 €<span style={{ fontSize: '1rem', fontWeight: 400, color: 'rgba(232,228,220,0.35)' }}>/mois</span>
+            </div>
+            <p className="text-xs mb-6" style={{ color: 'rgba(232,228,220,0.4)' }}>Sans engagement · Annulez à tout moment</p>
+            <ul className="text-sm text-left space-y-2 mb-7" style={{ color: 'rgba(232,228,220,0.7)' }}>
+              {[
+                'Simulateur cashflow illimité',
+                'Règle bancaire 70% + HCSF 35%',
+                'Export Excel & PDF pro',
+                'Tableau de scénarios comparatifs',
+                'Seuils de rentabilité en temps réel',
+              ].map(f => (
+                <li key={f} className="flex items-center gap-2">
+                  <span style={{ color: '#b8f040' }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            <Link href="/login?mode=signup" className="block w-full py-3 rounded-xl font-bold text-sm text-center transition-all" style={{ background: '#b8f040', color: '#080a0f', fontFamily: 'var(--font-display)' }}>
+              Commencer maintenant →
+            </Link>
+          </div>
+        </div>
       </main>
 
       <footer className="border-t border-white/[0.07] px-10 py-4 text-center text-xs" style={{ color: 'rgba(232,228,220,0.3)', background: '#0e1118' }}>

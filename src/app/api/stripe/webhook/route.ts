@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createClient as createSupabaseAdmin } from '@supabase/supabase-js'
+import { sendSubscriptionEmail } from '@/lib/email'
 import type Stripe from 'stripe'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,7 +12,6 @@ export async function POST(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
-
   const body = await request.text()
   const sig = request.headers.get('stripe-signature')!
 
@@ -36,6 +36,9 @@ export async function POST(request: Request) {
       status: subscription.status,
       current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
     }, { onConflict: 'user_id' })
+
+    const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(userId)
+    if (user?.email) sendSubscriptionEmail(user.email).catch(() => {})
   }
 
   if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {

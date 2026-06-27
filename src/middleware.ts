@@ -33,8 +33,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Connecté mais pas abonné → page de paiement
-  if (pathname.startsWith('/dashboard')) {
+  // Vérification abonnement (dashboard + subscribe)
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/subscribe')) {
     const { data: sub } = await supabase
       .from('subscriptions')
       .select('status, current_period_end')
@@ -43,8 +43,11 @@ export async function middleware(request: NextRequest) {
       .single()
 
     const isActive = sub && new Date(sub.current_period_end) > new Date()
-    if (!isActive) {
+    if (pathname.startsWith('/dashboard') && !isActive) {
       return NextResponse.redirect(new URL('/subscribe', request.url))
+    }
+    if (pathname.startsWith('/subscribe') && isActive) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
 
