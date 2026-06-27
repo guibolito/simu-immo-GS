@@ -96,6 +96,13 @@ function LoginForm() {
             {mode === 'signup' ? 'Se connecter' : 'Créer un compte'}
           </button>
         </p>
+        {mode === 'login' && (
+          <p className="text-center text-xs mt-2" style={{ color: 'rgba(232,228,220,0.3)' }}>
+            <a href="/forgot-password" style={{ color: 'rgba(232,228,220,0.4)', textDecoration: 'none' }}>
+              Mot de passe oublié ?
+            </a>
+          </p>
+        )}
       </div>
     </div>
   )

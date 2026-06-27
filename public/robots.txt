@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /subscribe
+Disallow: /api/
+
+Sitemap: https://simu-immo.fr/sitemap.xml

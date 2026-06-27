@@ -24,13 +24,16 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  const publicRoutes = ['/', '/login', '/auth/callback', '/api/stripe/webhook']
+  // Routes publiques
+  const publicRoutes = ['/', '/login', '/auth/callback', '/api/stripe/webhook', '/forgot-password', '/reset-password']
   if (publicRoutes.some(r => pathname.startsWith(r))) return supabaseResponse
 
+  // Non connecté → login
   if (!user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // Connecté mais pas abonné → page de paiement
   if (pathname.startsWith('/dashboard')) {
     const { data: sub } = await supabase
       .from('subscriptions')
