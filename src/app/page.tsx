@@ -51,7 +51,8 @@ export default function LandingPage() {
       </main>
 
       <footer className="border-t border-white/[0.07] px-10 py-4 text-center text-xs" style={{ color: 'rgba(232,228,220,0.3)', background: '#0e1118' }}>
-        Simu-Immo · Simulateur cashflow locatif · Règle HCSF 35% · Frais notaire 7,5%
+        SimuImmo · Simulateur cashflow locatif · Règle HCSF 35% · Frais notaire 7,5% ·{' '}
+        <a href="/legal" style={{ color: 'rgba(232,228,220,0.4)', textDecoration: 'underline' }}>Mentions légales & CGU</a>
       </footer>
     </div>
   )

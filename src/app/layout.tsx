@@ -14,14 +14,29 @@ const unbounded = Unbounded({
 })
 
 export const metadata: Metadata = {
-  title: 'Simu-Immo — Simulateur Cashflow Locatif',
-  description: 'Calculez le cashflow de votre investissement locatif. Règle bancaire 70%, HCSF 35%, export Excel/PDF.',
+  title: 'SimuImmo — Simulateur Cashflow Locatif',
+  description: 'Calculez le cashflow de votre investissement locatif en temps réel. Règle bancaire 70%, HCSF 35%, export Excel/PDF.',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
+  openGraph: {
+    title: 'SimuImmo — Simulateur Cashflow Locatif',
+    description: 'Calculez le cashflow de votre investissement locatif. Règle bancaire 70%, HCSF 35%, export Excel/PDF.',
+    type: 'website',
+    locale: 'fr_FR',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'SimuImmo — Simulateur Cashflow Locatif',
+    description: 'Calculez le cashflow de votre investissement locatif.',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${dmMono.variable} ${unbounded.variable}`}>
-      <body className="min-h-screen bg-[#080a0f] text-[#e8e4dc] font-mono antialiased">
+      <body style={{ minHeight: '100vh', background: '#080a0f', color: '#e8e4dc', margin: 0 }}>
         {children}
       </body>
     </html>
