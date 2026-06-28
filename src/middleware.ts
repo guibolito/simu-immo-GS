@@ -36,12 +36,16 @@ export async function middleware(request: NextRequest) {
 
   // Vérification abonnement (dashboard + subscribe)
   if (pathname.startsWith('/dashboard') || pathname.startsWith('/subscribe')) {
-    const { data: sub } = await supabase
+    const { data: sub, error: subError } = await supabase
       .from('subscriptions')
       .select('status, current_period_end')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .single()
+
+    if (subError && subError.code !== 'PGRST116') {
+      console.error('Subscription check failed:', subError)
+    }
 
     const isActive = sub && new Date(sub.current_period_end) > new Date()
     if (pathname.startsWith('/dashboard') && !isActive) {
@@ -56,5 +60,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 }

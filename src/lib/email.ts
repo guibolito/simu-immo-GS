@@ -1,5 +1,7 @@
 import { Resend } from 'resend'
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://simu-immo.fr'
+
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY)
 }
@@ -33,19 +35,19 @@ export async function sendSubscriptionEmail(email: string) {
         </p>
         <table cellpadding="0" cellspacing="0" style="margin:32px auto;display:block;text-align:center">
           <tr><td style="background:#b8f040;border-radius:10px;padding:14px 32px">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" style="color:#080a0f;font-size:14px;font-weight:800;text-decoration:none;letter-spacing:-0.02em">
+            <a href="${APP_URL}/dashboard" style="color:#080a0f;font-size:14px;font-weight:800;text-decoration:none;letter-spacing:-0.02em">
               Accéder au simulateur →
             </a>
           </td></tr>
         </table>
         <p style="margin:24px 0 0;font-size:12px;line-height:1.7;color:#999">
-          Vous pouvez gérer ou annuler votre abonnement à tout moment depuis le dashboard via le bouton « Abonnement ».
+          Vous pouvez gérer ou annuler votre abonnement à tout moment depuis le dashboard via le bouton "Abonnement".
         </p>
       </td></tr>
       <tr><td style="background:#f8f9fa;padding:20px 40px;border-top:1px solid #eee">
         <p style="margin:0;font-size:11px;color:#999;text-align:center;line-height:1.6">
           SimuImmo · Simulateur cashflow locatif<br>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/legal" style="color:#999">Mentions légales & CGU</a>
+          <a href="${APP_URL}/legal" style="color:#999">Mentions légales & CGU</a>
           · Les résultats sont des estimations à titre indicatif uniquement.
         </p>
       </td></tr>
@@ -108,7 +110,7 @@ export async function sendWelcomeEmail(email: string) {
 
         <table cellpadding="0" cellspacing="0" style="margin:32px auto;display:block;text-align:center">
           <tr><td style="background:#b8f040;border-radius:10px;padding:14px 32px">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" style="color:#080a0f;font-size:14px;font-weight:800;text-decoration:none;letter-spacing:-0.02em">
+            <a href="${APP_URL}/dashboard" style="color:#080a0f;font-size:14px;font-weight:800;text-decoration:none;letter-spacing:-0.02em">
               Accéder au simulateur →
             </a>
           </td></tr>
@@ -123,7 +125,7 @@ export async function sendWelcomeEmail(email: string) {
       <tr><td style="background:#f8f9fa;padding:20px 40px;border-top:1px solid #eee">
         <p style="margin:0;font-size:11px;color:#999;text-align:center;line-height:1.6">
           SimuImmo · Simulateur cashflow locatif<br>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/legal" style="color:#999">Mentions légales & CGU</a>
+          <a href="${APP_URL}/legal" style="color:#999">Mentions légales & CGU</a>
           · Les résultats sont des estimations à titre indicatif uniquement.
         </p>
       </td></tr>

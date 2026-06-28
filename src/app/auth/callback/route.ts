@@ -16,7 +16,11 @@ export async function GET(request: Request) {
     }
 
     // Flux reset de mot de passe → page dédiée
-    if (type === 'recovery') {
+    // Primary signal: ?type=recovery in redirectTo URL (set by forgot-password page).
+    // Secondary: recovery_sent_at within last 10 min (robust against URL param removal).
+    const recentRecovery = data.user?.recovery_sent_at &&
+      Date.now() - new Date(data.user.recovery_sent_at).getTime() < 10 * 60 * 1000
+    if (type === 'recovery' || recentRecovery) {
       return NextResponse.redirect(`${origin}/reset-password`)
     }
 

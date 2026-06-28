@@ -1,24 +1,23 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
+  const supabase = useRef(createClient()).current
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [ready, setReady] = useState(false)
+  const [ready, setReady] = useState<boolean | null>(null) // null = checking
 
   useEffect(() => {
-    // Supabase injecte la session depuis le lien email via le hash
-    const supabase = createClient()
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true)
-      else setError('Lien expiré ou invalide. Recommencez la procédure.')
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setReady(true)
+      else setReady(false)
     })
   }, [])
 
@@ -28,7 +27,6 @@ export default function ResetPasswordPage() {
     if (password.length < 8) { setError('Minimum 8 caractères.'); return }
     setLoading(true)
     setError('')
-    const supabase = createClient()
     const { error } = await supabase.auth.updateUser({ password })
     if (error) { setError(error.message); setLoading(false) }
     else router.push('/dashboard')
@@ -45,9 +43,13 @@ export default function ResetPasswordPage() {
         </div>
 
         <div style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 18, padding: '1.75rem' }}>
-          {!ready && error ? (
+          {ready === null ? (
+            <div style={{ textAlign: 'center', padding: '1rem 0', color: 'rgba(232,228,220,0.4)', fontSize: 13 }}>
+              Vérification…
+            </div>
+          ) : ready === false ? (
             <div style={{ textAlign: 'center' }}>
-              <p style={{ color: '#f04060', fontSize: 13 }}>{error}</p>
+              <p style={{ color: '#f04060', fontSize: 13 }}>Lien expiré ou invalide. Recommencez la procédure.</p>
               <Link href="/forgot-password" style={{ color: '#b8f040', fontSize: 12, marginTop: '1rem', display: 'block' }}>
                 Recommencer
               </Link>
@@ -71,7 +73,7 @@ export default function ResetPasswordPage() {
                 />
               </div>
               {error && <p style={{ color: '#f04060', fontSize: 12 }}>{error}</p>}
-              <button type="submit" disabled={loading || !ready} style={{ background: '#b8f040', color: '#080a0f', fontFamily: 'var(--font-display, sans-serif)', fontWeight: 700, fontSize: 12, padding: '11px', borderRadius: 10, border: 'none', cursor: 'pointer', opacity: (loading || !ready) ? 0.7 : 1 }}>
+              <button type="submit" disabled={loading} style={{ background: '#b8f040', color: '#080a0f', fontFamily: 'var(--font-display, sans-serif)', fontWeight: 700, fontSize: 12, padding: '11px', borderRadius: 10, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
                 {loading ? '...' : 'Enregistrer le mot de passe'}
               </button>
             </form>
