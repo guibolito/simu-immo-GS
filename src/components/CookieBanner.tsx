@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false)
@@ -25,8 +24,7 @@ export default function CookieBanner() {
       justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem',
     }}>
       <p style={{ fontSize: 12, color: 'rgba(232,228,220,0.6)', margin: 0, lineHeight: 1.6, maxWidth: 640 }}>
-        Ce site utilise des cookies techniques nécessaires à son fonctionnement (session, authentification).{' '}
-        <Link href="/legal" style={{ color: '#b8f040', textDecoration: 'underline' }}>En savoir plus</Link>
+        Ce site utilise des cookies techniques nécessaires à son fonctionnement (session, authentification).
       </p>
       <button onClick={accept} style={{
         background: '#b8f040', color: '#080a0f', border: 'none',

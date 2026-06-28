@@ -4,4 +4,4 @@ Disallow: /dashboard
 Disallow: /subscribe
 Disallow: /api/
 
-Sitemap: https://simu-immo.fr/sitemap.xml
+Sitemap: https://akad-immo.fr/sitemap.xml

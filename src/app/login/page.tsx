@@ -47,7 +47,7 @@ function LoginForm() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="font-semibold text-2xl mb-1" style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
-            Simu<span style={{ color: '#b8f040' }}>Immo</span>
+            AKAD<span style={{ color: '#b8f040' }}>IMMO</span>
           </div>
           <div className="text-sm" style={{ color: 'rgba(232,228,220,0.5)' }}>
             {mode === 'signup' ? 'Créer un compte' : 'Se connecter'}

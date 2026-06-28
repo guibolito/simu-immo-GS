@@ -37,7 +37,7 @@ export default function ResetPasswordPage() {
       <div style={{ width: '100%', maxWidth: 360 }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <Link href="/" style={{ fontFamily: 'var(--font-display, sans-serif)', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.04em', textDecoration: 'none', color: '#e8e4dc' }}>
-            Simu<span style={{ color: '#b8f040' }}>Immo</span>
+            AKAD<span style={{ color: '#b8f040' }}>IMMO</span>
           </Link>
           <div style={{ fontSize: 13, color: 'rgba(232,228,220,0.5)', marginTop: 6 }}>Nouveau mot de passe</div>
         </div>

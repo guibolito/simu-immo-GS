@@ -5,7 +5,7 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-white/[0.07] px-10 py-6 flex justify-between items-center">
         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.04em' }}>
-          Simu<span style={{ color: '#b8f040' }}>Immo</span>
+          AKAD<span style={{ color: '#b8f040' }}>IMMO</span>
         </div>
         <div className="flex gap-3">
           <Link href="/login" className="text-sm px-4 py-2" style={{ color: 'rgba(232,228,220,0.6)' }}>
@@ -78,8 +78,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="border-t border-white/[0.07] px-10 py-4 text-center text-xs" style={{ color: 'rgba(232,228,220,0.3)', background: '#0e1118' }}>
-        SimuImmo · Simulateur cashflow locatif · Règle HCSF 35% · Frais notaire 7,5% ·{' '}
-        <a href="/legal" style={{ color: 'rgba(232,228,220,0.4)', textDecoration: 'underline' }}>Mentions légales & CGU</a>
+        AKADIMMO · Simulateur cashflow locatif · Règle HCSF 35% · Frais notaire 7,5%
       </footer>
     </div>
   )

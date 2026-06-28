@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = 'SimuImmo — Simulateur Cashflow Locatif'
+export const alt = 'AKADIMMO — Simulateur Cashflow Locatif'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -15,7 +15,7 @@ export default function OgImage() {
     }}>
       {/* Logo */}
       <div style={{ fontSize: 80, fontWeight: 900, color: '#ffffff', letterSpacing: '-4px', display: 'flex' }}>
-        Simu<span style={{ color: '#b8f040' }}>Immo</span>
+        AKAD<span style={{ color: '#b8f040' }}>IMMO</span>
       </div>
 
       {/* Tagline */}

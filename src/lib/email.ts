@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://simu-immo.fr'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://akad-immo.fr'
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY)
@@ -8,9 +8,9 @@ function getResend() {
 
 export async function sendSubscriptionEmail(email: string) {
   return getResend().emails.send({
-    from: 'SimuImmo <bonjour@votre-domaine.fr>',
+    from: 'AKADIMMO <bonjour@akad-immo.fr>',
     to: email,
-    subject: 'Votre abonnement SimuImmo est actif ✓',
+    subject: 'Votre abonnement AKADIMMO est actif ✓',
     html: `
 <!DOCTYPE html>
 <html lang="fr">
@@ -21,7 +21,7 @@ export async function sendSubscriptionEmail(email: string) {
     <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;max-width:560px">
       <tr><td style="background:#080a0f;padding:32px 40px;text-align:center">
         <h1 style="margin:0;font-size:24px;font-weight:900;letter-spacing:-0.04em;color:#ffffff">
-          Simu<span style="color:#b8f040">Immo</span>
+          AKAD<span style="color:#b8f040">IMMO</span>
         </h1>
         <p style="margin:8px 0 0;font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.1em">Simulateur Cashflow Locatif</p>
       </td></tr>
@@ -31,7 +31,7 @@ export async function sendSubscriptionEmail(email: string) {
         </div>
         <h2 style="margin:0 0 16px;font-size:20px;font-weight:700;color:#111">Paiement confirmé !</h2>
         <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#444">
-          Votre abonnement SimuImmo à <strong>10 €/mois</strong> est actif. Vous avez accès à toutes les fonctionnalités du simulateur.
+          Votre abonnement AKADIMMO à <strong>10 €/mois</strong> est actif. Vous avez accès à toutes les fonctionnalités du simulateur.
         </p>
         <table cellpadding="0" cellspacing="0" style="margin:32px auto;display:block;text-align:center">
           <tr><td style="background:#b8f040;border-radius:10px;padding:14px 32px">
@@ -46,8 +46,8 @@ export async function sendSubscriptionEmail(email: string) {
       </td></tr>
       <tr><td style="background:#f8f9fa;padding:20px 40px;border-top:1px solid #eee">
         <p style="margin:0;font-size:11px;color:#999;text-align:center;line-height:1.6">
-          SimuImmo · Simulateur cashflow locatif<br>
-          <a href="${APP_URL}/legal" style="color:#999">Mentions légales & CGU</a>
+          AKADIMMO · Simulateur cashflow locatif<br>
+          
           · Les résultats sont des estimations à titre indicatif uniquement.
         </p>
       </td></tr>
@@ -62,9 +62,9 @@ export async function sendSubscriptionEmail(email: string) {
 
 export async function sendWelcomeEmail(email: string) {
   return getResend().emails.send({
-    from: 'SimuImmo <bonjour@votre-domaine.fr>',
+    from: 'AKADIMMO <bonjour@akad-immo.fr>',
     to: email,
-    subject: 'Bienvenue sur SimuImmo 🏡',
+    subject: 'Bienvenue sur AKADIMMO 🏡',
     html: `
 <!DOCTYPE html>
 <html lang="fr">
@@ -77,7 +77,7 @@ export async function sendWelcomeEmail(email: string) {
       <!-- Header -->
       <tr><td style="background:#080a0f;padding:32px 40px;text-align:center">
         <h1 style="margin:0;font-size:24px;font-weight:900;letter-spacing:-0.04em;color:#ffffff">
-          Simu<span style="color:#b8f040">Immo</span>
+          AKAD<span style="color:#b8f040">IMMO</span>
         </h1>
         <p style="margin:8px 0 0;font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.1em">Simulateur Cashflow Locatif</p>
       </td></tr>
@@ -86,7 +86,7 @@ export async function sendWelcomeEmail(email: string) {
       <tr><td style="padding:40px">
         <h2 style="margin:0 0 16px;font-size:20px;font-weight:700;color:#111">Bienvenue ! 👋</h2>
         <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#444">
-          Votre compte SimuImmo est actif. Vous pouvez maintenant calculer le cashflow
+          Votre compte AKADIMMO est actif. Vous pouvez maintenant calculer le cashflow
           de vos investissements locatifs en temps réel.
         </p>
 
@@ -124,8 +124,8 @@ export async function sendWelcomeEmail(email: string) {
       <!-- Footer -->
       <tr><td style="background:#f8f9fa;padding:20px 40px;border-top:1px solid #eee">
         <p style="margin:0;font-size:11px;color:#999;text-align:center;line-height:1.6">
-          SimuImmo · Simulateur cashflow locatif<br>
-          <a href="${APP_URL}/legal" style="color:#999">Mentions légales & CGU</a>
+          AKADIMMO · Simulateur cashflow locatif<br>
+          
           · Les résultats sont des estimations à titre indicatif uniquement.
         </p>
       </td></tr>

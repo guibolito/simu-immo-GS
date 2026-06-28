@@ -49,7 +49,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
   // Toast succès abonnement
   useEffect(() => {
     if (searchParams.get('success') === '1') {
-      setToast({ msg: '🎉 Abonnement activé — bienvenue sur SimuImmo !', type: 'success' })
+      setToast({ msg: '🎉 Abonnement activé — bienvenue sur AKADIMMO !', type: 'success' })
       router.replace('/dashboard', { scroll: false })
     }
   }, [])
@@ -110,7 +110,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
             {panelOpen ? '✕' : '⚙'}
           </button>
           <div style={{ fontFamily: 'var(--font-display, sans-serif)', fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.04em' }}>
-            Simu<span style={{ color: '#b8f040' }}>Immo</span>
+            AKAD<span style={{ color: '#b8f040' }}>IMMO</span>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -257,8 +257,7 @@ export default function SimulateurClient({ userEmail }: { userEmail: string }) {
           </Card>
 
           <footer style={{ fontSize: 10, color: 'rgba(232,228,220,0.25)', textAlign: 'center', paddingBottom: '1rem' }}>
-            Frais notaire estimés à 7,5% · Revenus salariaux base 40 000 € brut/an ·{' '}
-            <a href="/legal" style={{ color: 'rgba(232,228,220,0.35)', textDecoration: 'underline' }}>Mentions légales & CGU</a>
+            Frais notaire estimés à 7,5% · Revenus salariaux base 40 000 € brut/an
           </footer>
         </div>
       </div>

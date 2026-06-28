@@ -23,7 +23,7 @@ export default function SubscribePage() {
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#080a0f' }}>
       <div className="w-full max-w-sm text-center">
         <div className="font-semibold text-2xl mb-8" style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
-          Simu<span style={{ color: '#b8f040' }}>Immo</span>
+          AKAD<span style={{ color: '#b8f040' }}>IMMO</span>
         </div>
 
         <div className="rounded-2xl p-8" style={{ background: '#0e1118', border: '1px solid rgba(184,240,64,0.2)' }}>

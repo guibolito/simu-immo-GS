@@ -15,22 +15,22 @@ const unbounded = Unbounded({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://simu-immo.fr'),
-  title: 'SimuImmo — Simulateur Cashflow Locatif',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://akad-immo.fr'),
+  title: 'AKADIMMO — Simulateur Cashflow Locatif',
   description: 'Calculez le cashflow de votre investissement locatif en temps réel. Règle bancaire 70%, HCSF 35%, export Excel/PDF.',
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',
   },
   openGraph: {
-    title: 'SimuImmo — Simulateur Cashflow Locatif',
+    title: 'AKADIMMO — Simulateur Cashflow Locatif',
     description: 'Calculez le cashflow de votre investissement locatif. Règle bancaire 70%, HCSF 35%, export Excel/PDF.',
     type: 'website',
     locale: 'fr_FR',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SimuImmo — Simulateur Cashflow Locatif',
+    title: 'AKADIMMO — Simulateur Cashflow Locatif',
     description: 'Calculez le cashflow de votre investissement locatif.',
   },
 }
